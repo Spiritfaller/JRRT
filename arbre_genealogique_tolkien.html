@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L'Arbre généalogique de la Terre du Milieu — Carte des Lignées</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=IM+Fell+English:ital@0;1&family=MedievalSharp&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --parche: #e8d5b5;
+    --parche-fonce: #d9c096;
+    --parche-creux: #cbb180;
+    --encre: #3a2a16;
+    --encre-claire: #5a4327;
+    --rouge: #8b2020;
+    --or: #8a6a1f;
+    --elfe: #4a7086;
+    --homme: #7a5230;
+    --nain: #8a5220;
+    --hobbit: #5c7434;
+    --vala: #6b4a86;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IM Fell English', Georgia, serif;
+    color: var(--encre);
+    background-color: #cbb180;
+    background-image:
+      radial-gradient(ellipse at 20% 10%, rgba(255,246,225,0.9) 0%, rgba(232,213,181,0) 55%),
+      radial-gradient(ellipse at 85% 90%, rgba(160,125,70,0.35) 0%, rgba(203,177,128,0) 55%),
+      radial-gradient(ellipse at 60% 45%, rgba(190,150,90,0.22) 0%, rgba(203,177,128,0) 60%),
+      repeating-linear-gradient(0deg, rgba(120,85,40,0.035) 0px, rgba(120,85,40,0.035) 1px, transparent 2px, transparent 4px),
+      repeating-linear-gradient(90deg, rgba(120,85,40,0.035) 0px, rgba(120,85,40,0.035) 1px, transparent 2px, transparent 4px);
+    min-height: 100vh;
+    padding: 2.5rem 1rem 4rem;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(circle at 12% 78%, rgba(90,60,20,0.16) 0%, transparent 9%),
+      radial-gradient(circle at 78% 22%, rgba(90,60,20,0.13) 0%, transparent 7%),
+      radial-gradient(circle at 45% 93%, rgba(90,60,20,0.11) 0%, transparent 8%),
+      radial-gradient(circle at 92% 62%, rgba(90,60,20,0.09) 0%, transparent 6%);
+  }
+
+  header {
+    text-align: center;
+    max-width: 880px;
+    margin: 0 auto 2rem;
+    position: relative;
+  }
+  .cartouche {
+    border: 3px double var(--or);
+    outline: 1px solid rgba(138,106,31,0.5);
+    outline-offset: 5px;
+    padding: 2rem 1.5rem 1.6rem;
+    background: rgba(255,246,225,0.45);
+    position: relative;
+  }
+  .cartouche::before, .cartouche::after {
+    content: "❧";
+    position: absolute;
+    color: var(--or);
+    font-size: 1.6rem;
+    top: 0.6rem;
+  }
+  .cartouche::before { left: 1rem; }
+  .cartouche::after  { right: 1rem; }
+  header h1 {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: clamp(1.5rem, 4vw, 2.6rem);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--encre);
+  }
+  header .sous-titre {
+    font-family: 'IM Fell English', serif;
+    font-style: italic;
+    margin-top: 0.7rem;
+    color: var(--encre-claire);
+    font-size: 1.05rem;
+  }
+  header .ornement {
+    font-size: 1.3rem;
+    color: var(--or);
+    letter-spacing: 0.6em;
+    margin-top: 0.8rem;
+  }
+
+  nav.boussole {
+    display: flex;
+    justify-content: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    max-width: 880px;
+    margin: 0 auto 2.5rem;
+    font-family: 'Cinzel', serif;
+  }
+  nav.boussole a {
+    color: var(--encre);
+    text-decoration: none;
+    border: 1px solid var(--or);
+    background: rgba(255,246,225,0.55);
+    padding: 0.35rem 1.1rem;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+  nav.boussole a:hover {
+    background: var(--or);
+    color: #f6ecd4;
+    box-shadow: 0 2px 6px rgba(60,40,10,0.35);
+  }
+
+  main { max-width: 960px; margin: 0 auto; }
+
+  h2.titre-age {
+    text-align: center;
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+    font-size: 1.5rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--encre);
+    margin: 3rem 0 1.6rem;
+    position: relative;
+  }
+  h2.titre-age::before {
+    content: "— ❦ —";
+    display: block;
+    color: var(--or);
+    font-size: 1rem;
+    margin-bottom: 0.4rem;
+  }
+
+  details.maison {
+    background:
+      radial-gradient(ellipse at 15% 15%, rgba(255,248,230,0.6), rgba(232,213,181,0) 60%),
+      linear-gradient(160deg, rgba(255,246,225,0.5), rgba(203,177,128,0.35));
+    border: 2px solid var(--or);
+    box-shadow:
+      0 3px 10px rgba(60,40,10,0.3),
+      inset 0 0 40px rgba(160,125,70,0.25);
+    margin-bottom: 1.4rem;
+    overflow: hidden;
+  }
+  details.maison summary {
+    cursor: pointer;
+    padding: 0.85rem 1.2rem;
+    font-family: 'Cinzel', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    border-bottom: 1px solid rgba(138,106,31,0.45);
+    background: linear-gradient(to right, rgba(203,177,128,0.55), rgba(232,213,181,0.2));
+    color: var(--encre);
+  }
+  details.maison summary::-webkit-details-marker { display: none; }
+  details.maison summary::before {
+    content: "✦";
+    color: var(--or);
+    font-size: 1rem;
+  }
+  details.maison[open] summary::before { content: "❧"; }
+  details.maison summary:hover { background: rgba(203,177,128,0.75); }
+
+  .race-elfe   { border-left: 7px solid var(--elfe); }
+  .race-homme  { border-left: 7px solid var(--homme); }
+  .race-nain   { border-left: 7px solid var(--nain); }
+  .race-hobbit { border-left: 7px solid var(--hobbit); }
+  .race-vala   { border-left: 7px solid var(--vala); }
+
+  .badge {
+    font-family: 'MedievalSharp', cursive;
+    font-size: 0.72rem;
+    padding: 0.08rem 0.6rem;
+    border: 1px solid rgba(58,42,22,0.4);
+    margin-left: auto;
+    white-space: nowrap;
+    border-radius: 2px;
+    background: rgba(255,246,225,0.6);
+  }
+  .badge-elfe   { color: var(--elfe); }
+  .badge-homme  { color: var(--homme); }
+  .badge-nain   { color: var(--nain); }
+  .badge-hobbit { color: var(--hobbit); }
+  .badge-vala   { color: var(--vala); }
+
+  .contenu { padding: 1.2rem 1.4rem 1.4rem; }
+
+  .arbre {
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    line-height: 1.55;
+    overflow-x: auto;
+    white-space: pre;
+    color: #2c2013;
+    background: rgba(255,248,232,0.75);
+    border: 1px solid rgba(138,106,31,0.5);
+    padding: 1rem 1.1rem;
+    box-shadow: inset 0 0 25px rgba(160,125,70,0.2);
+  }
+  .arbre b { color: #5c3d0e; }
+  .arbre .union { color: var(--rouge); font-weight: bold; }
+
+  .contenu p.note {
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--encre-claire);
+    margin-top: 0.9rem;
+    border-top: 1px dashed rgba(138,106,31,0.5);
+    padding-top: 0.6rem;
+  }
+  .contenu p.note::before { content: "※ "; color: var(--or); }
+
+  table.recap {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    background: rgba(255,248,232,0.75);
+    border: 2px solid var(--or);
+  }
+  table.recap th {
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: rgba(203,177,128,0.6);
+    color: var(--encre);
+  }
+  table.recap th, table.recap td {
+    border: 1px solid rgba(138,106,31,0.5);
+    padding: 0.45rem 0.7rem;
+    text-align: left;
+  }
+  table.recap tr:nth-child(even) td { background: rgba(203,177,128,0.25); }
+
+  footer {
+    text-align: center;
+    margin-top: 3.5rem;
+    font-style: italic;
+    color: var(--encre-claire);
+    font-size: 0.95rem;
+  }
+  footer .ornement {
+    font-style: normal;
+    font-size: 1.2rem;
+    color: var(--or);
+    letter-spacing: 0.6em;
+    margin-bottom: 0.8rem;
+  }
+
+  @media (max-width: 640px) {
+    .cartouche::before, .cartouche::after { display: none; }
+    details.maison summary { font-size: 0.92rem; flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="cartouche">
+    <h1>L'Arbre généalogique<br>de la Terre du Milieu</h1>
+    <p class="sous-titre">Carte des grandes lignées, du Premier au Troisième Âge,<br>d'après l'œuvre éditée de J.R.R. Tolkien</p>
+    <p class="ornement">· ❦ ·</p>
+  </div>
+</header>
+
+<nav class="boussole">
+  <a href="#age1">Premier Âge</a>
+  <a href="#age2">Deuxième Âge</a>
+  <a href="#age3">Troisième Âge</a>
+  <a href="#unions">Les trois unions</a>
+  <a href="#recap">Tableau récapitulatif</a>
+</nav>
+
+<main>
+
+<!-- ══════════════════ PREMIER ÂGE ══════════════════ -->
+<section id="age1">
+  <h2 class="titre-age">Premier Âge — Beleriand</h2>
+
+  <details class="maison race-vala" open>
+    <summary>Les Ainur — les Puissances d'Arda <span class="badge badge-vala">Valar / Maiar</span></summary>
+    <div class="contenu">
+      <div class="arbre">Eru Ilúvatar (l'Unique)
+ └── Ainur, les esprits créés
+      ├── <b>Valar</b> : Manwë, Varda, Ulmo, Aulë, Mandos, Nienna, Yavanna…
+      │    └── [Aulë façonne les Nains ; Eru leur donne vie]
+      ├── <b>Maiar</b> : Sauron, Gandalf (Olórin), Saroumane, Radagast,
+      │    les Balrogs, Melian
+      └── <b>Melkor / Morgoth</b>, le Vala déchu — l'Ennemi du Premier Âge</div>
+      <p class="note">Melian la Maia épouse l'Elfe Thingol : leur fille Lúthien est l'unique union Ainur/Elfes.</p>
+    </div>
+  </details>
+
+  <details class="maison race-homme" open>
+    <summary>La Maison de Bëor <span class="badge badge-homme">Hommes</span></summary>
+    <div class="contenu">
+      <div class="arbre">Bëor l'Ancien (vassal de Finrod)
+ └── Baran
+      └── Boron
+           ├── Bregolas
+           │    ├── Baragund (grand-père de Morwen)
+           │    └── Belegund
+           └── Barahir
+                └── <b>Beren</b> <span class="union">═══</span> <b>Lúthien</b>  (1<sup>re</sup> union Elfes/Hommes)
+                     └── Dior <span class="union">═══</span> Nimloth
+                          ├── Eluréd, Elurín
+                          └── <b>Elwing</b> <span class="union">═══</span> <b>Eärendil</b></div>
+      <p class="note">Morwen, mère de Túrin, descend de cette maison par Baragund.</p>
+    </div>
+  </details>
+
+  <details class="maison race-homme">
+    <summary>La Maison de Hador <span class="badge badge-homme">Hommes</span></summary>
+    <div class="contenu">
+      <div class="arbre">Hador Lórindol
+ └── Galdor
+      ├── Húrin Thalion <span class="union">═══</span> Morwen (maison de Bëor)
+      │    ├── <b>Túrin Turambar</b> — héros maudit, lignée close
+      │    └── Nienor Níniel
+      └── Huor <span class="union">═══</span> Rían
+           └── <b>Tuor</b> <span class="union">═══</span> <b>Idril</b> (Elfe Ñoldor)  (2<sup>e</sup> union)
+                └── <b>Eärendil le Marin</b> <span class="union">═══</span> Elwing
+                     ├── <b>Elrond</b> (choisit les Elfes)
+                     └── <b>Elros</b> (choisit les Hommes → Númenor)</div>
+      <p class="note">Les Enfants de Húrin : Túrin et Nienor, victimes de la malédiction de Morgoth — la lignée s'éteint avec eux.</p>
+    </div>
+  </details>
+
+  <details class="maison race-homme">
+    <summary>La Maison de Haleth (les Haladin) <span class="badge badge-homme">Hommes</span></summary>
+    <div class="contenu">
+      <div class="arbre">Haldad
+ ├── Haldar (tué par les Orques)
+ └── <b>Haleth</b> — femme-chef, mène son peuple au Brethil
+      └── succession : Haldan → Halmir → Haldir → Hardang
+           [lignée absorbée après le Premier Âge]</div>
+      <p class="note">La maison de Haleth disparaît comme peuple distinct après la Guerre de la Colère.</p>
+    </div>
+  </details>
+
+  <details class="maison race-elfe" open>
+    <summary>La Maison de Finwë — les Ñoldor <span class="badge badge-elfe">Elfes</span></summary>
+    <div class="contenu">
+      <div class="arbre"><b>Finwë</b> (Grand Roi des Ñoldor)
+ ├─ [1] Míriel → <b>Fëanor</b> <span class="union">═</span> Nerdanel
+ │      └── 7 fils : Maedhros, Maglor, Celegorm, Caranthir, Curufin, Amrod, Amras
+ │           └── Celebrimbor (fils de Curufin — forgera les Anneaux, 2<sup>e</sup> Âge)
+ ├─ [2] Indis → <b>Fingolfin</b>
+ │      ├── Fingon (roi — sans héritier)
+ │      ├── Turgon <span class="union">═══</span> Elenwë → <b>Idril</b>
+ │      └── Aredhel <span class="union">═══</span> Eöl → Maeglin (traître de Gondolin)
+ └─ [3] Indis → <b>Finarfin</b> <span class="union">═══</span> Eärwen (Teleri d'Olwë)
+        ├── Finrod Felagund (meurt pour Beren — sans postérité)
+        ├── Orodreth → Finduilas
+        ├── Angrod, Aegnor
+        └── <b>Galadriel</b> <span class="union">═══</span> Celeborn → Celebrían</div>
+    </div>
+  </details>
+
+  <details class="maison race-elfe">
+    <summary>Thingol et les Sindar — Doriath <span class="badge badge-elfe">Elfes</span></summary>
+    <div class="contenu">
+      <div class="arbre"><b>Thingol</b> (Elwë) <span class="union">═══</span> <b>Melian</b> (Maia)      <b>Olwë</b> (roi d'Alqualondë)
+ └── <b>Lúthien</b> <span class="union">═══</span> Beren                  └── Eärwen <span class="union">═══</span> Finarfin
+      └── Dior
+           └── Elwing
+Oropher (Sinda — premier roi Sylvestre)
+ └── Thranduil (Forêt Noire)
+      └── Legolas</div>
+      <p class="note">La maison d'Olwë se fond dans celle de Finwë par le mariage d'Eärwen et Finarfin — d'où Galadriel.</p>
+    </div>
+  </details>
+
+  <details class="maison race-nain">
+    <summary>Les Nains — les Maisons anciennes <span class="badge badge-nain">Nains</span></summary>
+    <div class="contenu">
+      <div class="arbre">Les Sept Pères des Nains (créés par Aulë)
+ ├── <b>Durin I<sup>er</sup> « l'Immortel »</b> — Maison de Durin (Khazad-dûm)
+ ├── Broadbeams et Firebeards (Nogrod, Belegost — Montagnes Bleues)
+ │    └── forgent le Nauglamír ; tuent Thingol ; disparaissent du Beleriand
+ └── Ironfists, Stiffbeards, Blacklocks, Stonefoots — partis vers l'Est
+
+Petits-Nains : Mîm (dernier, trahit Túrin) — lignée éteinte</div>
+    </div>
+  </details>
+
+  <details class="maison race-homme">
+    <summary>Hommes de l'Est — alliés et traîtres <span class="badge badge-homme">Hommes</span></summary>
+    <div class="contenu">
+      <div class="arbre">Bór (fidèle aux fils de Fëanor)
+ └── Borlad, Borlach, Borthand (tombés au Nirnaeth Arnoediad)
+Ulfang « le Noir » (traître)
+ └── Ulfast, Ulwarth, Uldor — trahissent au Nirnaeth</div>
+    </div>
+  </details>
+</section>
+
+<!-- ══════════════════ DEUXIÈME ÂGE ══════════════════ -->
+<section id="age2">
+  <h2 class="titre-age">Deuxième Âge — Númenor et les Anneaux</h2>
+
+  <details class="maison race-homme" open>
+    <summary>Les Rois de Númenor — la lignée d'Elros <span class="badge badge-homme">Hommes</span></summary>
+    <div class="contenu">
+      <div class="arbre"><b>Elros Tar-Minyatur</b> (1<sup>er</sup> roi, règne 410 ans)
+ └── Vardamir Nólimon → Tar-Amandil → Tar-Elendil
+      ├── Tar-Meneldur
+      │    └── Tar-Aldarion <span class="union">═══</span> Erendis
+      │         └── <b>Tar-Ancalimë</b> (1<sup>re</sup> reine)
+      │              └── Tar-Anárion → Tar-Súrion → Tar-Telperiën (2<sup>e</sup> reine)
+      │                   └── <b>Tar-Minastir</b> (flotte contre Sauron)
+      │                        └── Tar-Ciryatan → Tar-Atanamir → Tar-Ancalimon
+      │                             → Tar-Telemmaitë → Tar-Vanimeldë → Tar-Alcarin
+      │                                  → Tar-Calmacil → Tar-Ardamin
+      │                                       → Ar-Adûnakhôr → Ar-Zimrathôn → Ar-Sakalthôr
+      │                                            → <b>Ar-Gimilzôr</b> <span class="union">═══</span> Inzilbêth
+      │                                                 ├── <b>Tar-Palantir</b>
+      │                                                 │    └── <b>Tar-Míriel</b> (forcée d'épouser Ar-Pharazôn)
+      │                                                 └── Gimilkhâd
+      │                                                      └── <b>Ar-Pharazôn « le Doré »</b> (dernier roi — Chute)
+      └── <b>Silmariën</b> (fille aînée, écartée du trône)
+           └── Seigneurs d'Andúnië : Valandil → … → Númendil
+                └── <b>Amandil</b> (dernier des Fidèles)
+                     └── <b>Elendil</b></div>
+      <p class="note">La lignée royale « aînée » disparaît dans la submersion de Númenor ; la lignée « cadette » des Fidèles (par Silmariën) survit en la personne d'Elendil.</p>
+    </div>
+  </details>
+
+  <details class="maison race-homme" open>
+    <summary>Les Exilés — Arnor et Gondor <span class="badge badge-homme">Hommes</span></summary>
+    <div class="contenu">
+      <div class="arbre"><b>Elendil</b> (Haut Roi — fonde Arnor)
+ ├── <b>Isildur</b> (prend l'Anneau ; tué aux Champs d'Iris)
+ │    └── Valandil → rois d'Arnor → Arthedain, Cardolan, Rhudaur
+ │         → Chefs des Dúnedain → Rangers du Nord
+ │              → Arathorn II <span class="union">═══</span> Gilraen
+ │                   └── <b>Aragorn II Elessar</b>
+ └── <b>Anárion</b> (tué devant Barad-dûr)
+      └── Meneldil → [rois de Gondor] …
+           → <b>Eärnur</b> (dernier roi — disparaît face au Roi-Sorcier, 2050 T.A.)
+                → Intendants : Mardil → … Ecthelion II → <b>Denethor II</b></div>
+    </div>
+  </details>
+
+  <details class="maison race-elfe">
+    <summary>Les forgerons d'Eregion et le dernier Haut Roi <span class="badge badge-elfe">Elfes</span></summary>
+    <div class="contenu">
+      <div class="arbre"><b>Celebrimbor</b> (fils de Curufin, petit-fils de Fëanor)
+ └── forge les Anneaux de Pouvoir — trompé par Sauron (Annatar)
+      [lignée de Fëanor éteinte avec lui]
+
+<b>Gil-galad</b> (dernier Haut Roi des Ñoldor en Terre du Milieu)
+ └── tombe avec Elendil devant Sauron en 3441 D.A. — lignée close</div>
+    </div>
+  </details>
+</section>
+
+<!-- ══════════════════ TROISIÈME ÂGE ══════════════════ -->
+<section id="age3">
+  <h2 class="titre-age">Troisième Âge — La Guerre de l'Anneau</h2>
+
+  <details class="maison race-nain" open>
+    <summary>La Maison de Durin — Khazad-dûm, Erebor <span class="badge badge-nain">Nains</span></summary>
+    <div class="contenu">
+      <div class="arbre"><b>Durin I<sup>er</sup></b> « l'Immortel » (fonde Khazad-dûm)
+ └── … Durin VI (tué par le Balrog, 1980 T.A.)
+      └── Náin I<sup>er</sup>
+           └── Thráin I<sup>er</sup> (fonde Erebor, 1999 T.A.)
+                └── … Náin II
+                     ├── <b>Thrór</b> (tué par Azog)
+                     │    └── <b>Thráin II</b> (meurt à Dol Guldur)
+                     │         ├── <b>Thorin II « Écu de Chêne »</b>
+                     │         ├── Frerin
+                     │         └── Dís → <b>Fíli et Kíli</b>
+                     └── Grór
+                          └── Náin (tué par Azog)
+                               └── <b>Dáin Pied d'Acier</b>
+                                    └── Thorin III Pierrehaute
+[Glóin, fils de Gróin → <b>Gimli</b>, membre de la Communauté]</div>
+    </div>
+  </details>
+
+  <details class="maison race-homme" open>
+    <summary>La Maison d'Eorl — les rois du Rohan <span class="badge badge-homme">Hommes</span></summary>
+    <div class="contenu">
+      <div class="arbre"><b>Eorl le Jeune</b> (reçoit le Rohan de l'intendant Cirion)
+ └── Brego
+      └── Aldor « l'Ancien »
+           └── Fréa → Fréawine → Goldwine → Déor → Gram
+                └── <b>Helm « Poing de Marteau »</b> (fils tués — ligne directe éteinte)
+                     └── [branche cousine] Fréaláf Hildeson
+                          → … Léofa → Walda → Folcwine → Fengel → Thengel
+                               └── <b>Théoden Édnew</b>
+                                    ├── Théodred (héritier — tué aux Gués de l'Isen)
+                                    └── Théodwyn <span class="union">═══</span> Éomund
+                                         ├── <b>Éomer</b> <span class="union">═══</span> Lothíriel (de Dol Amroth) → Elfwine
+                                         └── <b>Éowyn</b> <span class="union">═══</span> Faramir</div>
+    </div>
+  </details>
+
+  <details class="maison race-homme" open>
+    <summary>Les Intendants de Gondor et Dol Amroth <span class="badge badge-homme">Hommes</span></summary>
+    <div class="contenu">
+      <div class="arbre"><b>Húrin d'Emyn Arnen</b> (1<sup>er</sup> intendant)
+ └── [lignée des Intendants, 2050–3019 T.A.]
+      … Ecthelion II
+           └── <b>Denethor II</b> <span class="union">═══</span> Finduilas (de Dol Amroth)
+                ├── <b>Boromir</b> (tué à Amon Hen)
+                └── <b>Faramir</b> <span class="union">═══</span> Éowyn → princes d'Ithilien
+
+<b>Galador</b> (1<sup>er</sup> prince de Dol Amroth — fils d'Imrazôr le Númenóréen
+   et de Mithrellas l'Elfe, selon la légende)
+ └── … Adrahil
+      └── <b>Imrahil</b> (Guerre de l'Anneau) → Lothíriel <span class="union">═══</span> Éomer</div>
+    </div>
+  </details>
+
+  <details class="maison race-elfe" open>
+    <summary>Les lignées elfiques — Fondcombe, Lórien, Forêt Noire <span class="badge badge-elfe">Elfes</span></summary>
+    <div class="contenu">
+      <div class="arbre"><b>Galadriel</b> <span class="union">═══</span> <b>Celeborn</b> (Lórien)
+ └── Celebrían <span class="union">═══</span> <b>Elrond</b> (Fondcombe)
+      ├── Elladan, Elrohir (jumeaux)
+      └── <b>Arwen Undómiel</b> <span class="union">═══</span> <b>Aragorn</b> → <b>Eldarion</b>
+
+<b>Thranduil</b> (Forêt Noire)
+ └── <b>Legolas</b> (Communauté de l'Anneau — part vers Valinor)
+
+Círdan le Charpentier (Havres Gris) — sans descendance, dernier ancien Teleri</div>
+    </div>
+  </details>
+
+  <details class="maison race-hobbit" open>
+    <summary>Les Hobbits — la Comté <span class="badge badge-hobbit">Hobbits</span></summary>
+    <div class="contenu">
+      <div class="arbre">[Trois branches : Pieds-rugueux (Harfoots), Forts (Stoors),
+ Pâles (Fallohides — d'où Touc et Brandebouc)]
+Colonisation de la Comté en 1601 T.A. (Gorhendad Brandebouc fonde Bourg-sur-l'Eau)
+
+<b>Bungo Sacquet</b> <span class="union">═══</span> Belladonna Touc
+ └── <b>Bilbo</b> (trouve l'Anneau — sans enfant)
+Drogo Sacquet <span class="union">═══</span> Primula Brandebouc
+ └── <b>Frodo</b> (Porteur de l'Anneau — héritier et cousin de Bilbo)
+Saradoc Brandebouc <span class="union">═══</span> Esmeralda Touc
+ └── <b>Merry</b> (Meriadoc) — chevalier de Théoden
+Paladin II Touc <span class="union">═══</span> Eglantine Banques
+ └── <b>Pippin</b> (Peregrin) — garde de la Citadelle de Gondor
+Hamfast « le Gaffer » Gamegie <span class="union">═══</span> Bell Hartbouche
+ └── <b>Samwise</b> <span class="union">═══</span> Rose Cotton
+      └── Elanor, Frodo, Rose, Merry, Pippin, Goldilocks…
+
+Lignée tragique : Sméagol/Gollum (Stoor des Champs d'Iris) — pas de descendance</div>
+      <p class="note">Beorn → Grimbeorn « le Vieux » : les Hommes-des-Bois de l'Anduin, alliés lors de la Guerre de l'Anneau.</p>
+    </div>
+  </details>
+</section>
+
+<!-- ══════════════════ UNIONS ══════════════════ -->
+<section id="unions">
+  <h2 class="titre-age">Les trois unions des Elfes et des Hommes</h2>
+  <details class="maison race-elfe" open>
+    <summary>Les points de jonction des lignées <span class="badge badge-elfe">Elfes ═ Hommes</span></summary>
+    <div class="contenu">
+      <div class="arbre">1. <b>Beren + Lúthien</b> (Premier Âge)  → Dior → Elwing
+2. <b>Tuor + Idril</b> (Premier Âge)      → Eärendil + Elwing → Elrond / Elros
+3. <b>Aragorn + Arwen</b> (Troisième Âge) → Eldarion
+
+        Eärendil ═ Elwing
+             │
+      ┌──────┴──────┐
+   <b>Elrond</b>     <b>Elros</b>
+   (Elfes)      (Hommes → Númenor → Isildur)
+      │              │
+   <b>Arwen</b> ═══ <b>Aragorn</b>
+             │
+         <b>Eldarion</b> — les deux lignées séparées 6 000 ans se retrouvent</div>
+      <p class="note">La troisième union referme le cycle ouvert par la première : la lignée mi-elfique royale est restaurée.</p>
+    </div>
+  </details>
+</section>
+
+<!-- ══════════════════ RÉCAPITULATIF ══════════════════ -->
+<section id="recap">
+  <h2 class="titre-age">Tableau récapitulatif des continuités</h2>
+  <details class="maison" open>
+    <summary>Du Premier au Quatrième Âge <span class="badge">Registre des Maisons</span></summary>
+    <div class="contenu">
+      <table class="recap">
+        <tr><th>Maison</th><th>Premier Âge</th><th>Deuxième</th><th>Troisième</th><th>Postérité</th></tr>
+        <tr><td>Bëor</td><td>Beren + Lúthien</td><td>→ Elros / Elrond</td><td>Aragorn</td><td>Eldarion</td></tr>
+        <tr><td>Hador</td><td>Tuor + Idril</td><td>→ Elendil</td><td>ligne d'Isildur → Aragorn</td><td>rois réunifiés</td></tr>
+        <tr><td>Haleth</td><td>Brethil</td><td>absorbée</td><td>—</td><td>—</td></tr>
+        <tr><td>Finwë</td><td>les trois maisons Ñoldor</td><td>Celebrimbor, Gil-galad</td><td>Galadriel, Elrond</td><td>Eldarion (partiel)</td></tr>
+        <tr><td>Thingol</td><td>Doriath</td><td>—</td><td>Galadriel / Celeborn</td><td>Arwen</td></tr>
+        <tr><td>Durin</td><td>Khazad-dûm</td><td>Erebor (Thráin I<sup>er</sup>)</td><td>Thorin, Dáin, Gimli</td><td>Maison de Durin restaurée</td></tr>
+        <tr><td>Elros</td><td>—</td><td>Númenor</td><td>Arnor / Gondor → Aragorn</td><td>règne du Roi Elessar</td></tr>
+        <tr><td>Eorl</td><td>—</td><td>Northmen du Rhovanion</td><td>Rohan</td><td>Éomer → Elfwine</td></tr>
+        <tr><td>Hobbits</td><td>—</td><td>Comté fondée en 1601 T.A.</td><td>Sacquet / Touc / Brandebouc / Gamegie</td><td>Gamegie, Belle-du-Nord</td></tr>
+      </table>
+    </div>
+  </details>
+</section>
+
+</main>
+
+<footer>
+  <p class="ornement">· ❦ ·</p>
+  « Trois fois seulement les destinées des Elfes et des Hommes se sont jointes »<br>
+  — <i>Le Silmarillion</i>, « Des Anneaux de Pouvoir »<br>
+  Dressée d'après les ouvrages édités de J.R.R. Tolkien (HarperCollins / Christian Bourgois).
+</footer>
+
+</body>
+</html>
